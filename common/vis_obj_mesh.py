@@ -58,6 +58,27 @@ class InteractiveVisualizer:
         filtered_mesh = self.mesh.select_by_index(target_vertices)
         return filtered_mesh
 
+    def key_callback_unassigned_vertices(self, vis):
+        """Callback to visualize vertices that do not belong to any object."""
+
+        object_segments = set()
+        for group in self.seg_anno:
+            object_segments.update(group["segments"])
+
+        unassigned_vertices = np.isin(
+            self.seg_indices, list(object_segments), invert=True
+        ).nonzero()[0]
+
+        if len(unassigned_vertices) == 0:
+            print("No unassigned vertices found.")
+            return
+
+        unassigned_mesh = self.mesh.select_by_index(unassigned_vertices)
+
+        vis.clear_geometries()
+        vis.add_geometry(unassigned_mesh)
+        print(f"Visualizing {len(unassigned_vertices)} unassigned vertices.")
+
     def key_callback_filter(self, vis):
         """Callback to filter and display a specific object by ID."""
 
@@ -88,10 +109,14 @@ class InteractiveVisualizer:
         # Register key callbacks
         self.visualizer.register_key_callback(ord("F"), self.key_callback_filter)
         self.visualizer.register_key_callback(ord("R"), self.key_callback_reset)
+        self.visualizer.register_key_callback(
+            ord("B"), self.key_callback_unassigned_vertices
+        )
 
         # Run the visualizer
         print("Press 'F' to filter by Object ID.")
         print("Press 'R' to reset the view.")
+        print("Press 'B' to visualize unassigned vertices.")
         self.visualizer.run()
         self.visualizer.destroy_window()
 
