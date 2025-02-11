@@ -40,5 +40,5 @@ def visualize_meshes(scene_id):
     )
 
 
-scene_id = "410c470782"
+scene_id = "d918af9c5f"
 visualize_meshes(scene_id)
